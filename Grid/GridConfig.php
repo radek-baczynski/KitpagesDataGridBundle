@@ -27,15 +27,15 @@ class GridConfig
     protected $countFieldName = null;
 
     /**
-     * @param Field|string  $field
-     * @param array         $options
+     * @param Field|string $field
+     * @param array $options
      * @param string[] list of tags
      *
      * @return GridConfig Fluent interface
      */
     public function addField($field, $options = array(), $tagList = array())
     {
-        if (! (\is_string($field) || $field instanceof Field)) {
+        if (!(\is_string($field) || $field instanceof Field)) {
             throw new \InvalidArgumentException('Argument $field should be string or instance of Kitpages\DataGridBundle\Grid\Field');
         }
 
@@ -105,6 +105,9 @@ class GridConfig
      */
     public function getPaginatorConfig()
     {
+        if (!$this->paginatorConfig) {
+            $this->paginatorConfig = new PaginatorConfig();
+        }
         return $this->paginatorConfig;
     }
 
@@ -157,7 +160,7 @@ class GridConfig
         $matchingFieldList = array();
         foreach ($this->fieldList as $field) {
             if ($field->hasTag($tag)) {
-                $matchingFieldList[]  = $field;
+                $matchingFieldList[] = $field;
             }
         }
         return $matchingFieldList;

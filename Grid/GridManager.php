@@ -1,4 +1,5 @@
 <?php
+
 namespace Kitpages\DataGridBundle\Grid;
 
 use Kitpages\DataGridBundle\Event\AfterApplyFilter;
@@ -45,14 +46,15 @@ class GridManager
     protected $hydratorClass;
 
     /**
-     * @param EventDispatcherInterface                $dispatcher
+     * @param EventDispatcherInterface $dispatcher
      */
     public function __construct(
         EventDispatcherInterface $dispatcher,
         PaginatorManager $paginatorManager,
         NormalizerInterface $itemListNormalizer,
         $hydratorClass
-    ) {
+    )
+    {
         $this->dispatcher = $dispatcher;
         $this->paginatorManager = $paginatorManager;
         $this->itemListNormalizer = $itemListNormalizer;
@@ -65,8 +67,8 @@ class GridManager
     /**
      * get grid object filled
      *
-     * @param  \Kitpages\DataGridBundle\Grid\GridConfig $gridConfig
-     * @param  \Symfony\Component\HttpFoundation\Request $request
+     * @param \Kitpages\DataGridBundle\Grid\GridConfig $gridConfig
+     * @param \Symfony\Component\HttpFoundation\Request $request
      * @param Grid $grid : the user can give a instance of Grid (or a subclass
      * of grid) if he wants the grid object to be manually initialized before
      * the getGrid call.
@@ -95,27 +97,24 @@ class GridManager
         $gridQueryBuilder = clone($queryBuilder);
 
         // Apply filters
-        $filter = $request->query->get($grid->getFilterFormName(),"");
+        $filter = $request->query->get($grid->getFilterFormName(), "");
         $this->applyFilter($gridQueryBuilder, $grid, $filter);
 
         // Apply selector
-        $selectorField = $request->query->get($grid->getSelectorFieldFormName(),"");
-        $selectorValue = $request->query->get($grid->getSelectorValueFormName(),"");
+        $selectorField = $request->query->get($grid->getSelectorFieldFormName(), "");
+        $selectorValue = $request->query->get($grid->getSelectorValueFormName(), "");
         $this->applySelector($gridQueryBuilder, $grid, $selectorField, $selectorValue);
 
         // Apply sorting
-        $sortField = $request->query->get($grid->getSortFieldFormName(),"");
-        $sortOrder = $request->query->get($grid->getSortOrderFormName(),"");
+        $sortField = $request->query->get($grid->getSortFieldFormName(), "");
+        $sortOrder = $request->query->get($grid->getSortOrderFormName(), "");
         $this->applySort($gridQueryBuilder, $grid, $sortField, $sortOrder);
 
         // build paginator
         $paginatorConfig = $gridConfig->getPaginatorConfig();
-        if ($paginatorConfig === null) {
-            $paginatorConfig = new PaginatorConfig();
-            $paginatorConfig->setCountFieldName($gridConfig->getCountFieldName());
-            $paginatorConfig->setName($gridConfig->getName());
-            $paginatorConfig->setQueryBuilder($gridQueryBuilder);
-        }
+        $paginatorConfig->setCountFieldName($gridConfig->getCountFieldName());
+        $paginatorConfig->setName($gridConfig->getName());
+        $paginatorConfig->setQueryBuilder($gridQueryBuilder);
         if (is_null($paginatorConfig->getQueryBuilder())) {
             $paginatorConfig->setQueryBuilder($gridQueryBuilder);
         }
@@ -124,7 +123,7 @@ class GridManager
 
         // calculate limits
         $gridQueryBuilder->setMaxResults($paginator->getPaginatorConfig()->getItemCountInPage());
-        $gridQueryBuilder->setFirstResult(($paginator->getCurrentPage()-1) * $paginator->getPaginatorConfig()->getItemCountInPage());
+        $gridQueryBuilder->setFirstResult(($paginator->getCurrentPage() - 1) * $paginator->getPaginatorConfig()->getItemCountInPage());
 
         // send event for changing grid query builder
         $event = new DataGridEvent();
@@ -177,7 +176,7 @@ class GridManager
             if (count($filterRequestList) > 0) {
                 $reflectionMethod = new \ReflectionMethod($queryBuilder->expr(), "orx");
                 $queryBuilder->andWhere($reflectionMethod->invokeArgs($queryBuilder->expr(), $filterRequestList));
-                $queryBuilder->setParameter("filter", "%".$filter."%");
+                $queryBuilder->setParameter("filter", "%" . $filter . "%");
             }
             $grid->setFilterValue($filter);
         }
@@ -197,7 +196,7 @@ class GridManager
         $this->dispatcher->dispatch(new OnApplySelector($event));
 
         if (!$event->isDefaultPrevented()) {
-            $queryBuilder->andWhere($selectorField." = :selectorValue");
+            $queryBuilder->andWhere($selectorField . " = :selectorValue");
             $queryBuilder->setParameter("selectorValue", $selectorValue);
 
             $grid->setSelectorField($selectorField);
